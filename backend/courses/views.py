@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-from .serializers import CourseListSerializer , CourseDetailSerializer , CourseDetailLearnerSerializer , CourseCreateUpdateSerializer
-from .models import Course
+from .serializers import CourseListSerializer , CourseDetailSerializer , CourseDetailLearnerSerializer , CourseCreateUpdateSerializer , EnrollmentSerializer , EnrollmentCreateSerializer
+from .models import Course , Enrollment 
 from .permissions import IsLearner , IsInstructor
 
 class CourseViewSet(ModelViewSet):
@@ -49,10 +49,34 @@ class CourseViewSet(ModelViewSet):
           self.queryset = Course.objects.filter(id__in=self.request.user.enrollments.values_list("course_id",flat=True))
           serializer = self.get_serializer(self.queryset,many=True)
           return Response(serializer.data)
-     
+
+
      def perform_create(self, serializer):
           serializer.save(instructor=self.request.user)
      
      def perform_update(self,serializer):
           serializer.save(instructor=self.request.user)
      
+class EnrollmentViewSet(ModelViewSet):
+     permission_classes = [IsAuthenticated,IsInstructor]
+     serializer_class = EnrollmentSerializer
+     http_method_names = [
+          "GET","POST"
+     ]
+     def get_queryset(self):
+          if self.request.user.role == "INSTRUCTOR":   
+               return Enrollment.objects.filter(course__instructor=self.request.user)
+          return Enrollment.objects.all()
+     
+     def get_permissions(self):
+          if self.action == "create":
+               self.permission_classes = [IsAuthenticated,IsLearner]
+          return super().get_permissions()
+
+     def get_serializer(self, *args, **kwargs):
+          if self.action == "create":
+               self.serializer_class = EnrollmentCreateSerializer
+          return super().get_serializer(*args, **kwargs)
+     
+     def perform_create(self, serializer):
+          serializer.save(user=self.request.user)

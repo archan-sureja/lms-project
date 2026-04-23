@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from .models import Course , Topic , Tag
+from .models import Course , Topic , Enrollment 
 class CourseListSerializer(serializers.ModelSerializer):
     tags = serializers.StringRelatedField(many=True)
     class Meta:
@@ -98,3 +98,23 @@ class CourseCreateUpdateSerializer(serializers.ModelSerializer):
             instance.allowed_levels.set(allowed_levels)
         return instance
 
+class EnrollmentCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Enrollment 
+        fields = ("user","course","enrolled_at")
+        extra_kwargs = {
+            "enrolled_at" : {
+                "read_only":True
+            }
+        }
+    
+    def validate(self, attrs):
+        pass 
+
+class EnrollmentSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    course = serializers.StringRelatedField()
+    class Meta:
+        model = Enrollment
+        fields = ("user","course","enrolled_at")
