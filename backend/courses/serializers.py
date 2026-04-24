@@ -22,12 +22,12 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     allowed_levels = serializers.SerializerMethodField()
     tags = serializers.StringRelatedField(many=True)
     instructor = serializers.StringRelatedField()
-    def get_allowedDepts(self,course):
+    def get_allowed_depts(self,course):
         lst = []
         for dept in course.allowed_depts.all():
             lst.append(dept.name)
         return lst 
-    def get_allowedLevels(self,course):
+    def get_allowed_levels(self,course):
         lst = []
         for level in course.allowed_levels.all():
             lst.append(level.level)
@@ -106,15 +106,39 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "enrolled_at" : {
                 "read_only":True
+            },
+            "user":{
+                "read_only":True
             }
         }
     
     def validate(self, attrs):
-        pass 
+        request = self.context.get('request')
+        user = request.user 
+        course = attrs.get('course')
 
-class EnrollmentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    course = serializers.StringRelatedField()
+        enrollment = Enrollment.objects.filter(user=user,course=course)
+        if enrollment:
+            raise serializers.ValidationError("user is already enrolled in given course")
+        
+        emp_profile = user.employee_profile
+        print(course.allowed_depts.exists())
+        if course.allowed_depts.exists():
+            if emp_profile.department not in course.allowed_depts.all():
+                raise serializers.ValidationError("given user's department is not allowed to enroll")
+        
+        if course.allowed_levels.exists():
+            if emp_profile.level not in course.allowed_levels.all():
+                raise serializers.ValidationError("given user's level is not allowed to enroll")
+        
+        return attrs 
+    
+class EnrollmentReadOnlySerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+    course = serializers.StringRelatedField(read_only=True)
+    department = serializers.CharField(source='user.employee_profile.department',read_only=True)
+    level = serializers.CharField(source='user.employee_profile.level',read_only=True)
     class Meta:
         model = Enrollment
-        fields = ("user","course","enrolled_at")
+        fields = ("user","course","enrolled_at","department","level")
+        
