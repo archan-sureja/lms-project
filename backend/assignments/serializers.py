@@ -1,6 +1,6 @@
 from rest_framework import serializers 
 from .models import Assignment , Submission , SubmissionGrade 
-from datetime import datetime , timezone
+from datetime import datetime , timezone , timedelta
 class AssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
@@ -24,8 +24,8 @@ class AssignmentCreateUpdateSerializer(serializers.ModelSerializer):
         if course.instructor != user:
             raise serializers.ValidationError({"course":"Only instructor of given course can create/update assignment"})
         
-        if deadline <= datetime.now(timezone.utc):
-            raise serializers.ValidationError({"deadline":"deadline must be greater then current time"})
+        if deadline <= datetime.now(timezone.utc)+timedelta(minutes=10):
+            raise serializers.ValidationError({"deadline":"deadline must be greater then 10 minutes from current time"})
         return attr 
 
 class SubmissionGradeSerializer(serializers.ModelSerializer):
@@ -118,7 +118,9 @@ class SubmissionUpdateSerializer(serializers.ModelSerializer):
         
         if assignment and not user.enrollments.filter(course=assignment.course).exists():
             raise serializers.ValidationError("User must be enrolled to in course for submission")
-    
+
+        if assignment and assignment.deadline < datetime.now(timezone.utc):
+            raise serializers.ValidationError("Deadline for this assignment has passed. You cannot update submission now.")
         return attr 
 
 
