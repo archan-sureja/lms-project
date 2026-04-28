@@ -12,8 +12,8 @@ class Course(models.Model):
     description = models.TextField(blank=True,null=True)
     instructor = models.ForeignKey(User,on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
-    allowed_depts = models.ManyToManyField(Department,blank=True,null=True)
-    allowed_levels = models.ManyToManyField(Level,blank=True,null=True)
+    allowed_depts = models.ManyToManyField(Department,blank=True)
+    allowed_levels = models.ManyToManyField(Level,blank=True)
 
     def __str__(self):
         return self.title 

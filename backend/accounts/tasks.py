@@ -1,6 +1,6 @@
 from celery import shared_task 
 from django.core.mail import EmailMessage 
-
+from django.conf import settings 
 @shared_task
 def send_credentials_email_task(user_email, username, raw_password, role):
     subject = f"Welcome to the LMS - Your {role.capitalize()} Account Details"
@@ -15,4 +15,4 @@ def send_credentials_email_task(user_email, username, raw_password, role):
     
     Please log in and change your password immediately.
     """
-    return EmailMessage(subject=subject,body=message,to=[user_email])
+    return EmailMessage(subject=subject,body=message,to=[user_email],from_email=settings.EMAIL_HOST_USER).send()
