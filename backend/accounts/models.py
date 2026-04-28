@@ -38,6 +38,9 @@ class EmployeeProfile(models.Model):
     
 class User(AbstractUser):
     """ User Model """
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
+    email = models.EmailField(blank=False)
     ROLES = [("LEARNER","learner"),("INSTRUCTOR","instructor")]
     role = models.CharField(choices=ROLES)
     employee_profile = models.ForeignKey(EmployeeProfile,on_delete=models.CASCADE,related_name="accounts")

@@ -27,7 +27,7 @@ class Submission(models.Model):
     
 
 class SubmissionGrade(models.Model):
-    submission = models.OneToOneField(Submission,on_delete=models.CASCADE,related_name="submission")
+    submission = models.OneToOneField(Submission,on_delete=models.CASCADE,related_name="grade")
     review_text = models.TextField()
     grade = models.DecimalField(max_digits=3,decimal_places=1)
     graded_at = models.DateTimeField(auto_now_add=True)

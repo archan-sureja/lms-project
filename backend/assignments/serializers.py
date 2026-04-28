@@ -28,8 +28,25 @@ class AssignmentCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"deadline":"deadline must be greater then current time"})
         return attr 
 
+class SubmissionGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionGrade
+        fields = ("id","submission","review_text","grade","graded_at")
+        extra_kwargs = {
+            "id":{
+                "read_only":True
+            },
+            "submission":{
+                "read_only":True
+            },
+            "graded_at":{
+                "read_only":True
+            }
+        }
+
 class SubmissionSerializer(serializers.ModelSerializer):
     is_late = serializers.SerializerMethodField()
+    grade = SubmissionGradeSerializer
     def get_is_late(self,submission):
         return submission.submitted_at > submission.assignment.deadline
     class Meta:
@@ -51,6 +68,12 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
                 "read_only":True
             }
         }
+    def validate_file(self,value):
+        extension = value.name.split(".")[-1] 
+        if extension not in ["pdf",'txt',"docx"]:
+            raise serializers.ValidationError("Only .pdf, and .docx file formats are allowed")
+        if value.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError("File size exceded limit of 5 MB")
     def validate(self,attr):
         request = self.context.get('request')
         user = request.user 
@@ -62,6 +85,7 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
         if Submission.objects.filter(submitted_by=user,assignment=assignment).exists():
             raise serializers.ValidationError("only one submission per assignment per user is allowed")
 
+    
         return attr 
     
 class SubmissionUpdateSerializer(serializers.ModelSerializer):
@@ -97,10 +121,7 @@ class SubmissionUpdateSerializer(serializers.ModelSerializer):
     
         return attr 
 
-class SubmissionGradeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubmissionGrade
-        fields = "__all__"
+
 
 class SubmissionGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -112,6 +133,10 @@ class SubmissionGradeCreateSerializer(serializers.ModelSerializer):
             },
             "graded_at":{
                 "read_only":True
+            },
+            "submission":
+            {
+                "ready_only":True
             }
         }
     def validate(self,attrs):
