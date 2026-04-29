@@ -46,15 +46,16 @@ class SubmissionGradeSerializer(serializers.ModelSerializer):
 
 class SubmissionSerializer(serializers.ModelSerializer):
     is_late = serializers.SerializerMethodField()
-    grade = SubmissionGradeSerializer
+    grade = SubmissionGradeSerializer(read_only=True)
+    file_url = serializers.SerializerMethodField()
     def get_is_late(self,submission):
         return submission.submitted_at > submission.assignment.deadline
+    def get_file_url(self,submission):
+        return f"http://localhost:8000/submissions/{submission.id}/download/"
     class Meta:
         model = Submission 
-        fields = ("id","assignment","submitted_by","submitted_at","remarks","is_late")
-    def to_representation(self, instance):
-        instance['file'] = f"http://localhost:8000/submissions/{instance.id}/download/"
-        return super().to_representation(instance)
+        fields = ("id","assignment","submitted_by","file_url","submitted_at","remarks","is_late","grade")
+
 class SubmissionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission 
@@ -68,14 +69,19 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
             },
             "submitted_at":{
                 "read_only":True
+            },
+            "file":{
+                "write_only":True
             }
         }
     def validate_file(self,value):
         extension = value.name.split(".")[-1] 
-        if extension not in ["pdf",'txt',"docx"]:
+        if extension not in ["pdf","docx"]:
             raise serializers.ValidationError("Only .pdf, and .docx file formats are allowed")
         if value.size > 5 * 1024 * 1024:
             raise serializers.ValidationError("File size exceded limit of 5 MB")
+        return value 
+    
     def validate(self,attr):
         request = self.context.get('request')
         user = request.user 
@@ -120,7 +126,7 @@ class SubmissionUpdateSerializer(serializers.ModelSerializer):
         
         if assignment and not user.enrollments.filter(course=assignment.course).exists():
             raise serializers.ValidationError("User must be enrolled to in course for submission")
-    
+
         return attr 
 
 
