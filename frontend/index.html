@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Loading...</title>
+</head>
+<body>
+    <script src="assets/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const role = getUserRole();
+            if (role === 'INSTRUCTOR') {
+                window.location.href = 'instructor_dashboard.html';
+            } else if (role === 'LEARNER') {
+                window.location.href = 'learner_dashboard.html';
+            } else {
+                logout();
+            }
+        });
+    </script>
+</body>
+</html>
