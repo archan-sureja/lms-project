@@ -3,9 +3,10 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action 
-from rest_framework.response import Response 
+from rest_framework.response import Response , 
 from rest_framework import generics 
 from rest_framework import status
+from rest_framework.views import APIView
 from accounts.permissions import IsInstructor, IsLearner
 from .models import Assignment, Submission, SubmissionGrade
 from .serializers import (
@@ -84,7 +85,7 @@ class SubmissionViewSet(ModelViewSet):
             self.serializer_class = SubmissionUpdateSerializer
         return super().get_serializer(*args, **kwargs)
     def get_permissions(self):
-        if self.request.user.role == "INSTRUCTOR" and (self.action == "list" or self.action=="grade"):
+        if self.request.user.role == "INSTRUCTOR" and (self.action == "list" or self.action=="grade" or self.action=="download"):
             self.permission_classes = [IsAuthenticated,IsInstructor]
         else:
             self.permission_classes = [IsAuthenticated,IsLearner]
@@ -112,6 +113,15 @@ class SubmissionViewSet(ModelViewSet):
             return Response(serializer.data)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
+    @action(detail=True, methods=["get"])
+    def download(self, request, pk=None):
+        submission = self.get_object()
+        user = request.user
+        if user==submission.submitted_by or user==submission.assigment.course.instructor:
+            return FileResponse(submission.file.open(), as_attachment=True)
+        raise PermissionDenied(detail="you are not allowed to access this file",code=status.HTTP_403_FORBIDDEN)
+
+    
 class SubmissionGradeListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = SubmissionGradeSerializer 
@@ -119,4 +129,5 @@ class SubmissionGradeListView(generics.ListAPIView):
         if self.request.user.role == "LEARNER":
             return SubmissionGrade.objects.filter(submission__submitted_by=self.request.user)
         return SubmissionGrade.objects.filter(submission__assignment__course__instructor=self.request.user)
-    
+
+

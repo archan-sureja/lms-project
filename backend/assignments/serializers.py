@@ -51,8 +51,10 @@ class SubmissionSerializer(serializers.ModelSerializer):
         return submission.submitted_at > submission.assignment.deadline
     class Meta:
         model = Submission 
-        fields = ("id","assignment","submitted_by","file","submitted_at","remarks","is_late")
-
+        fields = ("id","assignment","submitted_by","submitted_at","remarks","is_late")
+    def to_representation(self, instance):
+        instance['file'] = f"http://localhost:8000/submissions/{instance.id}/download/"
+        return super().to_representation(instance)
 class SubmissionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission 

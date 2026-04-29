@@ -22,11 +22,22 @@ class Topic(models.Model):
     name = models.CharField()
     resource_link = models.URLField(null=True,blank=True)
     course = models.ForeignKey(Course,on_delete=models.CASCADE,related_name='topics')
+    order = models.IntegerField()
 
     def __str__(self):
         return self.name 
+    
+    def save(self, *args, **kwargs):
+        if self.order is None:  
+            last_order = (
+                self.course.topics.aggregate(max_order=models.Max("order"))
+                ["max_order"]
+            )
+            self.order = (last_order or 0) + 1
 
-
+        super().save(*args, **kwargs)
+    class Meta:
+        ordering = ['order']
 class Enrollment(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="enrollments")
     course = models.ForeignKey(Course,on_delete=models.CASCADE,related_name="enrollments")
