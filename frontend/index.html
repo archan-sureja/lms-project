@@ -10,11 +10,17 @@
 <body>
     <script src="assets/js/api.js"></script>
     <script>
+        console.log(isLoggedIn)
+        console.log("outside of condition check")
         if (isLoggedIn()) {
+            console.log("inside of condition check")
             const role = getUserRole();
-            if (role === 'instructor') {
+            console.log(role)
+            if (role === 'INSTRUCTOR') {
+                console.log("inside of instructor check")
                 window.location.href = 'instructor_dashboard.html';
             } else {
+                console.log("inside of learner check")
                 window.location.href = 'learner_dashboard.html';
             }
         } else {

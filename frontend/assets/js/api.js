@@ -64,15 +64,13 @@ async function apiFetch(endpoint, options = {}) {
             options.body = JSON.stringify(options.body);
         }
     } else {
-         // let browser set content type for FormData
          delete options.headers['Content-Type'];
     }
 
     let response = await fetch(`${API_BASE_URL}${endpoint}`, options);
     
     if (response.status === 401 && tokens.refresh) {
-        // Token might be expired, try to refresh (not fully implemented to keep it simple, 
-        // just redirect to login for now)
+
         logout();
     }
     
