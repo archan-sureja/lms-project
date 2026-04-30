@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learner Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -19,38 +21,41 @@
     <div class="container mt-4">
         <ul class="nav nav-tabs" id="learnerTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="available-tab" data-bs-toggle="tab" data-bs-target="#available" type="button" role="tab">Available Courses</button>
+                <button class="nav-link active" id="available-tab" data-bs-toggle="tab" data-bs-target="#available"
+                    type="button" role="tab">Available Courses</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="enrolled-tab" data-bs-toggle="tab" data-bs-target="#enrolled" type="button" role="tab">Enrolled Courses</button>
+                <button class="nav-link" id="enrolled-tab" data-bs-toggle="tab" data-bs-target="#enrolled" type="button"
+                    role="tab">Enrolled Courses</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="assignments-tab" data-bs-toggle="tab" data-bs-target="#assignments" type="button" role="tab">Assignments</button>
+                <button class="nav-link" id="assignments-tab" data-bs-toggle="tab" data-bs-target="#assignments"
+                    type="button" role="tab">Assignments</button>
             </li>
         </ul>
         <div class="tab-content bg-white border border-top-0 p-4" id="learnerTabsContent">
             <div class="tab-pane fade show active" id="available" role="tabpanel">
                 <h4>Available Courses</h4>
                 <div class="row" id="available-courses-list">
-                    <!-- Loaded via JS -->
+                    <!-- Load via JS -->
                 </div>
             </div>
             <div class="tab-pane fade" id="enrolled" role="tabpanel">
                 <h4>Enrolled Courses</h4>
                 <div class="row" id="enrolled-courses-list">
-                    <!-- Loaded via JS -->
+                    <!-- Load via JS -->
                 </div>
             </div>
             <div class="tab-pane fade" id="assignments" role="tabpanel">
                 <h4>My Assignments</h4>
                 <div id="assignments-list">
-                    <!-- Loaded via JS -->
+                    <!--load via JS -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Assignment Submission Modal -->
+
     <div class="modal fade" id="submissionModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -80,4 +85,5 @@
     <script src="assets/js/api.js"></script>
     <script src="assets/js/learner.js"></script>
 </body>
+
 </html>
