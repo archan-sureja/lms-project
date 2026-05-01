@@ -128,11 +128,11 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         print(course.allowed_depts.exists())
         if course.allowed_depts.exists():
             if emp_profile.department not in course.allowed_depts.all():
-                raise serializers.ValidationError("given user's department is not allowed to enroll")
+                raise serializers.ValidationError({"user":"given user's department is not allowed to enroll"})
         
         if course.allowed_levels.exists():
             if emp_profile.level not in course.allowed_levels.all():
-                raise serializers.ValidationError("given user's level is not allowed to enroll")
+                raise serializers.ValidationError({"user":"given user's level is not allowed to enroll"})
         
         return attrs 
     

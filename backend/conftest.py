@@ -1,8 +1,9 @@
 import pytest 
 from accounts.models import User ,EmployeeProfile , Department , Level
 from courses.models import Tag, Course, Topic , Enrollment
+from assignments.models import Assignment 
 from rest_framework.test import APIClient
-
+from datetime import datetime,timezone,timedelta
 @pytest.fixture
 def emp_profile(db):
     dept = Department.objects.create(name="PYTHON")
@@ -90,27 +91,40 @@ def enrollments(db,learner_user,other_learner_user,course):
     return Enrollment.objects.all()
 
 @pytest.fixture
-def not_allowed_dept_course(db,user):
+def not_allowed_dept_course(db,user,learner_user):
     course = Course.objects.create(
         title="title_test",
         description="some descpription for course(testing)",
         instructor=user
     )
     course.allowed_depts.set([Department.objects.create(name="QA")])
-    course.allowed_levels.set([Level.objects.create(level="TRAINEE")])
+    course.allowed_levels.set([learner_user.employee_profile.level])
     return course 
 
 @pytest.fixture
-def not_allowed_level_course(db,user):
+def not_allowed_level_course(db,user,learner_user):
     course = Course.objects.create(
         title="title_test",
         description="some descpription for course(testing)",
         instructor=user
     )
-    course.allowed_depts.set([Department.objects.create(name="PYTHON")])
+    course.allowed_depts.add(learner_user.employee_profile.department)
     course.allowed_levels.set([Level.objects.create(level="JR.")])
-    return course 
-    
+    return course
+ 
+@pytest.fixture
+def learner_user_enrollment(db,learner_user,course):
+    return Enrollment.objects.create(user=learner_user,course=course)
+
+# @pytest.fixture
+# def other_learner_enrollment(db,other_learner_user,course)
+@pytest.fixture
+def assignment_for_learner(db,learner_user_enrollment,course):
+    return Assignment(course=course,
+                      title="this is test assignment",
+                      description="this is test description for test assignment",
+                      deadline = datetime.now(timezone.utc)+timedelta(days=2))
+
 @pytest.fixture
 def api_client():
     return APIClient()
