@@ -13,12 +13,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const assignmentForm = document.getElementById('assignment-form');
     if (assignmentForm) {
+        loadInstructorAssignments();
+        loadSubmissions();
         assignmentForm.addEventListener('submit', handleAssignmentSubmit);
     }
 
     const gradeForm = document.getElementById('grade-form');
     if (gradeForm) {
         gradeForm.addEventListener('submit', handleGradeSubmit);
+    }
+
+    // Load enrollments if we're on the enrollments page
+    const enrollmentsTable = document.getElementById('enrollments-table-body');
+    if (enrollmentsTable) {
+        loadEnrollments();
     }
 });
 
@@ -64,6 +72,23 @@ async function handleCourseSubmit(e) {
     const id = document.getElementById('course-id').value;
     const title = document.getElementById('course-title').value;
     const description = document.getElementById('course-description').value;
+    const tagsInput = document.getElementById('course-tags').value;
+    const deptsInput = document.getElementById('course-depts').value;
+    const levelsInput = document.getElementById('course-levels').value;
+
+    // Parse tags
+    const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+    
+    // Parse IDs
+    const allowed_depts = deptsInput ? deptsInput.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d)) : [];
+    const allowed_levels = levelsInput ? levelsInput.split(',').map(l => parseInt(l.trim())).filter(l => !isNaN(l)) : [];
+
+    // Parse topics
+    const topicElements = document.querySelectorAll('.topic-input-group');
+    const topics = Array.from(topicElements).map(el => ({
+        name: el.querySelector('.topic-name').value,
+        resource_link: el.querySelector('.topic-link').value || null
+    })).filter(t => t.name);
 
     const method = id ? 'PUT' : 'POST';
     const endpoint = id ? `/courses/${id}/` : '/courses/';
@@ -71,7 +96,7 @@ async function handleCourseSubmit(e) {
     try {
         const response = await apiFetch(endpoint, {
             method: method,
-            body: { title, description }
+            body: { title, description, tags, allowed_depts, allowed_levels, topics }
         });
 
         if (response.ok) {
@@ -79,6 +104,7 @@ async function handleCourseSubmit(e) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('courseModal'));
             modal.hide();
             loadInstructorCourses();
+            resetCourseForm();
         } else {
             const err = await response.json();
             alert('Error: ' + JSON.stringify(err));
@@ -86,6 +112,27 @@ async function handleCourseSubmit(e) {
     } catch (e) {
         console.error(e);
     }
+}
+
+function addTopicField() {
+    const container = document.getElementById('topics-container');
+    const topicIndex = container.children.length;
+    const html = `
+        <div class="topic-input-group card p-2 mb-2">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <input type="text" class="form-control topic-name form-control-sm" placeholder="Topic name" required>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <input type="url" class="form-control topic-link form-control-sm" placeholder="Resource link (optional)">
+                </div>
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.parentElement.parentElement.remove()">Remove</button>
+                </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML += html;
 }
 
 async function deleteCourse(id) {
@@ -119,7 +166,7 @@ async function loadEnrollments() {
                 <tr>
                     <td>${en.id}</td>
                     <td>${en.user}</td>
-                    <td>${en.user_email || 'N/A'}</td>
+                    <td>${en.department || 'N/A'}</td>
                     <td>${en.course}</td>
                     <td>${new Date(en.enrolled_at).toLocaleString()}</td>
                 </tr>
@@ -156,7 +203,6 @@ async function loadInstructorAssignments() {
                             <h5 class="card-title">${assign.title} (Course: ${assign.course})</h5>
                             <p class="card-text">${assign.description || ''}</p>
                             <p class="small text-muted">Deadline: ${new Date(assign.deadline).toLocaleString()}</p>
-                            <p class="small fw-bold">Max Score: ${assign.total_score}</p>
                             <button class="btn btn-sm btn-danger float-end" onclick="deleteAssignment(${assign.id})">Delete</button>
                         </div>
                     </div>
@@ -171,11 +217,21 @@ async function loadInstructorAssignments() {
 async function handleAssignmentSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('assign-id').value;
-    const course = document.getElementById('assign-course-id').value;
+    const course = parseInt(document.getElementById('assign-course-id').value);
     const title = document.getElementById('assign-title').value;
     const description = document.getElementById('assign-desc').value;
-    const deadline = document.getElementById('assign-deadline').value;
-    const total_score = document.getElementById('assign-score').value;
+    const deadlineLocal = document.getElementById('assign-deadline').value;
+    
+    // Validate deadline (convert local datetime to UTC)
+    const deadline = new Date(deadlineLocal).toISOString();
+    const now = new Date();
+    const tenMinutesFromNow = new Date(now.getTime() + 10 * 60000);
+    
+    if (new Date(deadline) <= tenMinutesFromNow) {
+        document.getElementById('deadline-error').classList.remove('d-none');
+        return;
+    }
+    document.getElementById('deadline-error').classList.add('d-none');
 
     const method = id ? 'PUT' : 'POST';
     const endpoint = id ? `/assignments/${id}/` : '/assignments/';
@@ -183,7 +239,7 @@ async function handleAssignmentSubmit(e) {
     try {
         const response = await apiFetch(endpoint, {
             method: method,
-            body: { course, title, description, deadline, total_score }
+            body: { course, title, description, deadline }
         });
 
         if (response.ok) {
@@ -191,6 +247,7 @@ async function handleAssignmentSubmit(e) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('assignmentModal'));
             modal.hide();
             loadInstructorAssignments();
+            resetAssignmentForm();
         } else {
             const err = await response.json();
             alert('Error: ' + JSON.stringify(err));

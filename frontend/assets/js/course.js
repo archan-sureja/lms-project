@@ -23,18 +23,40 @@ async function loadCourseDetails(id) {
         if (response.ok) {
             const course = await response.json();
             
+            // Format allowed departments
+            const depts = course.allowed_depts && course.allowed_depts.length > 0 
+                ? course.allowed_depts.join(', ') 
+                : 'Any';
+            
+            // Format allowed levels
+            const levels = course.allowed_levels && course.allowed_levels.length > 0 
+                ? course.allowed_levels.join(', ') 
+                : 'Any';
+
             // Basic details
             let html = `
                 <h2>${course.title}</h2>
-                <p class="text-muted">Instructor ID: ${course.instructor}</p>
+                <p class="text-muted">Instructor: ${course.instructor}</p>
                 <hr>
                 <p>${course.description || 'No description available.'}</p>
                 
                 <h5 class="mt-4">Allowed Departments:</h5>
-                <p>${course.allowed_depts || 'Any'}</p>
+                <p>${depts}</p>
                 
                 <h5>Allowed Levels:</h5>
-                <p>${course.allowed_levels || 'Any'}</p>
+                <p>${levels}</p>
+                
+                <h5 class="mt-4">Topics:</h5>
+                ${course.topics && course.topics.length > 0 ? `
+                    <ul>
+                        ${course.topics.map(t => `
+                            <li>
+                                <strong>${t.name}</strong>
+                                ${t.resource_link ? `<a href="${t.resource_link}" target="_blank">(Resource Link)</a>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                ` : '<p>No topics available.</p>'}
             `;
 
             container.innerHTML = html;

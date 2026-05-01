@@ -30,6 +30,7 @@ async function loadAvailableCourses() {
                         <div class="card-body">
                             <h5 class="card-title">${course.title}</h5>
                             <p class="card-text">${course.description || 'No description'}</p>
+                            <small class="text-muted d-block mb-2">Tags: ${course.tags && course.tags.length > 0 ? course.tags.join(', ') : 'None'}</small>
                             <a href="course_detail.html?id=${course.id}" class="btn btn-sm btn-outline-primary">View Details</a>
                             <button class="btn btn-sm btn-success float-end" onclick="enrollCourse(${course.id})">Enroll</button>
                         </div>

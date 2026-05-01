@@ -39,7 +39,7 @@
 
 
     <div class="modal fade" id="courseModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="courseModalLabel">Create Course</h5>
@@ -55,6 +55,23 @@
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea id="course-description" class="form-control" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tags (comma separated)</label>
+                            <input type="text" id="course-tags" class="form-control" placeholder="e.g., Python, Web Development">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Allowed Departments (comma separated IDs)</label>
+                            <input type="text" id="course-depts" class="form-control" placeholder="e.g., 1,2,3">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Allowed Levels (comma separated IDs)</label>
+                            <input type="text" id="course-levels" class="form-control" placeholder="e.g., 1,2,3">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Topics</label>
+                            <div id="topics-container"></div>
+                            <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addTopicField()">Add Topic</button>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Save Course</button>
                     </form>
