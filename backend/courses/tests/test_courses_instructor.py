@@ -36,27 +36,21 @@ class TestCoursesForInstructor:
 
     def test_update_course_as_creator(self,api_client,user,course):
         api_client.force_authenticate(user=user)
-        url = reverse("course-list") 
-        res = api_client.post(url,{
+        url = reverse("course-detail",args=(course.id,)) 
+        res = api_client.put(url,{
             "title":"test title",
             "description":"this is test description",
-            "topics": [
-                {
-                    "name":'test topic 1',
-                    "resource_link":"http://test.com"
-                }
-            ],
             "instructor":-1 #this must be ignored 
         },format="json")
         print(res.data)
-        assert res.status_code == 201 
+        assert res.status_code == 200
         assert res.data['instructor'] == user.username
         
 
     def test_update_course_as_not_creator(self,api_client,other_instructor,course):
         url = reverse("course-detail",args=(course.id,))
         api_client.force_authenticate(user=other_instructor)
-        res = api_client.delete(url)
+        res = api_client.put(url,{"some-data":"some-value"})
         assert res.status_code == 404 
         
 
