@@ -7,5 +7,6 @@ urlpatterns = [
     path('api/token/refresh/',TokenRefreshView.as_view(),name="refresh_token"),
     path('change-password,/',views.ChangePasswordView.as_view(),name="change_password"),
     path("departments/",views.DepartmentViewSet.as_view({'get':"list"})),
-    path("levels/",views.LevelViewSet.as_view({'get':"list"}))
+    path("levels/",views.LevelViewSet.as_view({'get':"list"})),
+    path('profile/',views.ProfileView.as_view(),name="profile-info")
 ]

@@ -46,6 +46,9 @@ function logout() {
     window.location.href = 'login.html';
 }
 
+async function downloadFile(endpoint){
+    
+}
 // Custom fetch wrapper to automatically add the Authorization header
 async function apiFetch(endpoint, options = {}) {
     const tokens = getTokens();
@@ -76,3 +79,4 @@ async function apiFetch(endpoint, options = {}) {
     
     return response;
 }
+

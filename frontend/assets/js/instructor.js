@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     
+
     const courseForm = document.getElementById('course-form');
     if (courseForm) {
         loadInstructorCourses();
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+ 
     const enrollmentsTable = document.getElementById('enrollments-table-body');
     if (enrollmentsTable) {
         loadEnrollments();
@@ -51,6 +53,7 @@ async function loadInstructorCourses() {
                             <h5 class="card-title">${course.title} (ID: ${course.id})</h5>
                             <p class="card-text">${course.description || 'No description'}</p>
                             <button class="btn btn-sm btn-danger float-end ms-2" onclick="deleteCourse(${course.id})">Delete</button>
+                            <button class="btn btn-sm btn-info float-end ms-2" onclick="handle
                             <a href="course_detail.html?id=${course.id}" class="btn btn-sm btn-info float-end ms-2">Details</a>
                         </div>
                     </div>
@@ -217,6 +220,7 @@ async function handleAssignmentSubmit(e) {
     const title = document.getElementById('assign-title').value;
     const description = document.getElementById('assign-desc').value;
     const deadlineLocal = document.getElementById('assign-deadline').value;
+    
     const deadline = new Date(deadlineLocal).toISOString();
     const now = new Date();
     const tenMinutesFromNow = new Date(now.getTime() + 10 * 60000);

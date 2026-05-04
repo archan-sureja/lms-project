@@ -146,7 +146,7 @@ class EnrollmentReadOnlySerializer(serializers.ModelSerializer):
     level = serializers.CharField(source='user.employee_profile.level',read_only=True)
     class Meta:
         model = Enrollment
-        fields = ("user","course","enrolled_at","department","level")
+        fields = ("id","user","course","enrolled_at","department","level")
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
