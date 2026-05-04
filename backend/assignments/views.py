@@ -53,6 +53,14 @@ class AssignmentViewSet(ModelViewSet):
             self.serializer_class = AssignmentSerializer
         return super().get_serializer(*args, **kwargs)
 
+    def perform_update(self, serializer):
+        if serializer.instance.course.instructor != self.request.user:
+            raise PermissionDenied(
+                detail="only instructor can update assignments",
+                code=status.HTTP_403_FORBIDDEN,
+            )
+        return super().perform_update(serializer)
+    
     def perform_destroy(self, instance):
         if instance.course.instructor != self.request.user:
             raise PermissionDenied(

@@ -47,7 +47,7 @@ class CourseDetailLearnerSerializer(serializers.ModelSerializer):
         fields = ('id','title','description','instructor','tags','topics')
 
 class CourseCreateUpdateSerializer(serializers.ModelSerializer):
-    topics = TopicSerializer(many=True)
+    topics = TopicSerializer(many=True,required=False)
     instructor = serializers.StringRelatedField()
     class Meta:
         model = Course 
@@ -60,13 +60,16 @@ class CourseCreateUpdateSerializer(serializers.ModelSerializer):
             },
             'instructor' :{
                 'read_only':True
+            },
+            'tags':{
+                'required':False
             }
         }
     def create(self, validated_data):
-        topics_data = validated_data.pop('topics')
-        tags_data = validated_data.pop('tags')
-        allowed_depts = validated_data.pop('allowed_depts')
-        allowed_levels = validated_data.pop('allowed_levels')
+        topics_data = validated_data.pop('topics',[])
+        tags_data = validated_data.pop('tags',[])
+        allowed_depts = validated_data.pop('allowed_depts',[])
+        allowed_levels = validated_data.pop('allowed_levels',[])
         course = Course.objects.create(**validated_data)
         course.allowed_depts.set(allowed_depts)
         course.allowed_levels.set(allowed_levels)
@@ -125,11 +128,11 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         print(course.allowed_depts.exists())
         if course.allowed_depts.exists():
             if emp_profile.department not in course.allowed_depts.all():
-                raise serializers.ValidationError("given user's department is not allowed to enroll")
+                raise serializers.ValidationError({"user":"given user's department is not allowed to enroll"})
         
         if course.allowed_levels.exists():
             if emp_profile.level not in course.allowed_levels.all():
-                raise serializers.ValidationError("given user's level is not allowed to enroll")
+                raise serializers.ValidationError({"user":"given user's level is not allowed to enroll"})
         
         return attrs 
     
