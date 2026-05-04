@@ -273,21 +273,41 @@ async function loadSubmissions() {
         tbody.innerHTML = '';
 
         if (submissions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No submissions found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No submissions found.</td></tr>';
             return;
         }
 
         submissions.forEach(sub => {
-            const fileLink = sub.file_url ? `<a href="#" onclick="handleFileDownload('${sub.file_url}')">View File</a>` : 'No file';
+            const fileLink = sub.file_url ? `<a href="#" onclick="handleFileDownload('${sub.file_url}')" class="text-decoration-none">Download</a>` : 'No file';
+            const submittedAt = new Date(sub.submitted_at).toLocaleDateString() + ' ' + new Date(sub.submitted_at).toLocaleTimeString();
+            const statusBadge = sub.is_late ? '<span class="badge bg-danger">Late</span>' : '<span class="badge bg-success">On Time</span>';
+            
+            let gradeColumn = '';
+            let actionColumn = '';
+            
+            if (sub.grade && sub.grade.grade !== null) {
+                gradeColumn = `<td>${sub.grade.grade}/10.0</td>`;
+                actionColumn = `<td>
+                    <button class="btn btn-sm btn-warning" onclick="openGradeModal(${sub.id}, ${sub.grade.grade}, '${(sub.grade.review_text || '').replace(/'/g, "\\'")}')">Edit</button>
+                </td>`;
+            } else {
+                gradeColumn = '<td>-</td>';
+                actionColumn = `<td>
+                    <button class="btn btn-sm btn-success" onclick="openGradeModal(${sub.id}, '', '')">Grade</button>
+                </td>`;
+            }
+            
             tbody.innerHTML += `
                 <tr>
                     <td>${sub.id}</td>
                     <td>${sub.assignment}</td>
                     <td>${sub.submitted_by}</td>
+                    <td>${submittedAt}</td>
+                    <td>${statusBadge}</td>
+                    ${gradeColumn}
+                    <td>${sub.grade.review_text || '-'}</td>
                     <td>${fileLink}</td>
-                    <td>
-                        <button class="btn btn-sm btn-success" onclick="openGradeModal(${sub.id})">Grade</button>
-                    </td>
+                    ${actionColumn}
                 </tr>
             `;
         });
@@ -312,9 +332,10 @@ async function handleFileDownload(filePath) {
         alert('Failed to download file.');
     }
 }
-function openGradeModal(submissionId) {
+function openGradeModal(submissionId, score = '', remarks = '') {
     document.getElementById('grade-sub-id').value = submissionId;
-    document.getElementById('grade-form').reset();
+    document.getElementById('grade-score').value = score;
+    document.getElementById('grade-feedback').value = remarks;
     const modal = new bootstrap.Modal(document.getElementById('gradeModal'));
     modal.show();
 }
@@ -322,13 +343,13 @@ function openGradeModal(submissionId) {
 async function handleGradeSubmit(e) {
     e.preventDefault();
     const submissionId = document.getElementById('grade-sub-id').value;
-    const score = document.getElementById('grade-score').value;
-    const feedback = document.getElementById('grade-feedback').value;
+    const grade = document.getElementById('grade-score').value;
+    const review_text = document.getElementById('grade-feedback').value;
 
     try {
         const response = await apiFetch(`/submissions/${submissionId}/grade/`, {
             method: 'POST',
-            body: { score, feedback }
+            body: { grade, review_text }
         });
 
         if (response.ok) {

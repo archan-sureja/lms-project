@@ -117,9 +117,9 @@ class SubmissionViewSet(ModelViewSet):
         submission = self.get_object()
         grade = getattr(submission,"grade",None)
         if grade :
-            serializer = SubmissionGradeCreateSerializer(grade,data=request.data,partial=True)
+            serializer = SubmissionGradeCreateSerializer(grade,data=request.data,partial=True,context={"request":request})
         else:
-            serializer = SubmissionGradeCreateSerializer(data=request.data)
+            serializer = SubmissionGradeCreateSerializer(data=request.data,context={"request":request})
         if serializer.is_valid():
             serializer.save(submission=submission)
             return Response(serializer.data)

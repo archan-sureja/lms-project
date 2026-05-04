@@ -42,6 +42,9 @@ class SubmissionSerializer(serializers.ModelSerializer):
     is_late = serializers.SerializerMethodField()
     grade = SubmissionGradeSerializer(read_only=True)
     file_url = serializers.SerializerMethodField()
+    assignment = serializers.StringRelatedField()
+    submitted_by = serializers.StringRelatedField()
+
     def get_is_late(self,submission):
         return submission.submitted_at > submission.assignment.deadline
     def get_file_url(self,submission):
@@ -140,7 +143,7 @@ class SubmissionGradeCreateSerializer(serializers.ModelSerializer):
             },
             "submission":
             {
-                "ready_only":True
+                "read_only":True
             }
         }
     def validate(self,attrs):

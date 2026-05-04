@@ -9,7 +9,7 @@ class Assignment(models.Model):
     deadline = models.DateTimeField()
 
     def __str__(self):
-        return self.title + " " + self.course.title 
+        return self.title + "->" + self.course.title 
     
 
 class Submission(models.Model):
