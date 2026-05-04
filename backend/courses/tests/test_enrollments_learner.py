@@ -25,6 +25,7 @@ class TestEnrollmentsLearner:
             "user":learner_user.id,
             "course":not_allowed_dept_course.id
         })
+        print(res.data)
         assert res.status_code == 400
         assert res.data['user'][0] ==  "given user's department is not allowed to enroll"
 
@@ -35,6 +36,7 @@ class TestEnrollmentsLearner:
             "user":learner_user.id,
             "course":not_allowed_level_course.id
         })
+        print(res.data)
         assert res.status_code == 400
         assert res.data['user'][0] == "given user's level is not allowed to enroll"
 

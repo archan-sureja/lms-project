@@ -97,6 +97,11 @@ def not_allowed_dept_course(db,user,learner_user):
         description="some descpription for course(testing)",
         instructor=user
     )
+    for j in range(5):
+            Topic.objects.create(
+                name=f"test topic {j+1}",
+                resource_link=f"http://resources{j+1}.com",
+                course=course)
     course.allowed_depts.set([Department.objects.create(name="QA")])
     course.allowed_levels.set([learner_user.employee_profile.level])
     return course 
@@ -108,6 +113,11 @@ def not_allowed_level_course(db,user,learner_user):
         description="some descpription for course(testing)",
         instructor=user
     )
+    for j in range(5):
+            Topic.objects.create(
+                name=f"test topic {j+1}",
+                resource_link=f"http://resources{j+1}.com",
+                course=course)
     course.allowed_depts.add(learner_user.employee_profile.department)
     course.allowed_levels.set([Level.objects.create(level="JR.")])
     return course
