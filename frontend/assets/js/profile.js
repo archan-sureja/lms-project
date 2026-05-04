@@ -91,7 +91,7 @@ async function handleChangePassword(e) {
     
     try {
         const response = await apiFetch('/change-password/', {
-            method: 'PUT',
+            method: 'PATCH',
             body: {
                 old_password: oldPassword,
                 new_password: newPassword

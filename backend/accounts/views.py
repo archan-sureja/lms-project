@@ -12,8 +12,16 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class ChangePasswordView(UpdateAPIView):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
+    http_method_names = ["patch"]
+    def get_object(self):
+        return self.request.user  
+
     def update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(
+            instance=self.get_object(),
+            data=request.data,
+            partial=True  
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

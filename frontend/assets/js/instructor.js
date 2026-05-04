@@ -51,6 +51,7 @@ async function loadInstructorCourses() {
                             <h5 class="card-title">${course.title} (ID: ${course.id})</h5>
                             <p class="card-text">${course.description || 'No description'}</p>
                             <button class="btn btn-sm btn-danger float-end ms-2" onclick="deleteCourse(${course.id})">Delete</button>
+                            <button class="btn btn-sm btn-info float-end ms-2" onclick="handle
                             <a href="course_detail.html?id=${course.id}" class="btn btn-sm btn-info float-end ms-2">Details</a>
                         </div>
                     </div>

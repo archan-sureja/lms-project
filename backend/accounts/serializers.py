@@ -10,26 +10,19 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(max_length=128, write_only=True, required=True)
-    new_password = serializers.CharField(max_length=128, write_only=True, required=True)
+    old_password = serializers.CharField()
+    new_password = serializers.CharField()
+
     def validate_old_password(self, value):
         user = self.context['request'].user
         if not user.check_password(value):
-            raise serializers.ValidationError(
-                'Your old password was entered incorrectly'
-            )
+            raise serializers.ValidationError("Wrong password")
         return value
 
-    def validate(self, data):
-        validate_password(data['new_password'], self.context['request'].user)
-        return data
-
-    def save(self, **kwargs):
-        password = self.validated_data['new_password']
-        user = self.context['request'].user
-        user.set_password(password)
-        user.save()
-        return user
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])
+        instance.save()
+        return instance
 
 class UserProfileSerializer(serializers.ModelSerializer):
     department = serializers.SerializerMethodField()

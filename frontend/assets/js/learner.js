@@ -103,13 +103,10 @@ async function loadAssignments() {
             container.innerHTML = '<p class="text-muted">No assignments due.</p>';
             return;
         }
-
-        // Fetch my submissions to see if I already submitted
         const subResp = await apiFetch('/submissions/');
         const mySubmissions = await subResp.json();
         const submittedAssignIds = mySubmissions.map(s => s.assignment);
 
-        // Fetch grades to see if graded
         const gradeResp = await apiFetch('/grades/');
         const myGrades = await gradeResp.json();
         
