@@ -118,7 +118,7 @@ async function loadAssignments() {
             if (submission) {
                 const grade = myGrades.find(g => g.submission === submission.id);
                 if (grade) {
-                    gradeInfo = `<span class="badge bg-success">Graded: ${grade.score} - ${grade.feedback}</span>`;
+                    gradeInfo = `<span class="badge bg-success">Graded: ${grade.grade} - ${grade.review_text}</span>`;
                 } else {
                     gradeInfo = `<span class="badge bg-warning text-dark">Submitted, Pending Grade</span>`;
                 }

@@ -29,7 +29,7 @@ class CourseViewSet(ModelViewSet):
           enrolled_courses = Course.objects.filter(id__in=self.request.user.enrollments.values_list('course_id',flat=True))
 
           if self.action=="list":
-               return allowed_courses
+               return allowed_courses.exclude(id__in=self.request.user.enrollments.values_list('course_id',flat=True))
           if self.action=="retrieve":
                return allowed_courses | enrolled_courses
           
