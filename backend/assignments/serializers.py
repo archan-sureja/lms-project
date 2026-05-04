@@ -121,6 +121,8 @@ class SubmissionUpdateSerializer(serializers.ModelSerializer):
         if assignment and not user.enrollments.filter(course=assignment.course).exists():
             raise serializers.ValidationError("User must be enrolled to in course for submission")
 
+        if assignment and assignment.deadline < datetime.now(timezone.utc):
+            raise serializers.ValidationError("Deadline for this assignment has passed. You cannot update submission now.")
         return attr 
 
 

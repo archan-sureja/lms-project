@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Loading...</title>
+</head>
+
+<body>
+    <script src="assets/js/api.js"></script>
+    <script>
+        console.log(isLoggedIn)
+        console.log("outside of condition check")
+        if (isLoggedIn()) {
+            console.log("inside of condition check")
+            const role = getUserRole();
+            console.log(role)
+            if (role === 'INSTRUCTOR') {
+                console.log("inside of instructor check")
+                window.location.href = 'instructor_dashboard.html';
+            } else {
+                console.log("inside of learner check")
+                window.location.href = 'learner_dashboard.html';
+            }
+        } else {
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
@@ -105,6 +104,11 @@ class SubmissionViewSet(ModelViewSet):
         if instance.submitted_by != self.request.user:
             raise PermissionDenied(
                 detail="only owner can perform delete", code=status.HTTP_403_FORBIDDEN
+            )
+        if instance.assignment.deadline < instance.submitted_at:
+            raise PermissionDenied(
+                detail="Deadline for this assignment has passed. You cannot delete submission now.",
+                code=status.HTTP_403_FORBIDDEN,
             )
         return super().perform_destroy(instance)
 

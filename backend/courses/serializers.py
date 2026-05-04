@@ -124,6 +124,9 @@ class EnrollmentCreateSerializer(serializers.ModelSerializer):
         if enrollment:
             raise serializers.ValidationError("user is already enrolled in given course")
         
+        if course.topics.count()==0:
+            raise serializers.ValidationError("enrollment not allowed for this course , please try again later")
+        
         emp_profile = user.employee_profile
         print(course.allowed_depts.exists())
         if course.allowed_depts.exists():
