@@ -19,6 +19,9 @@
                     <li class="nav-item"><a class="nav-link active" href="instructor_assignments.html">Assignments</a>
                     </li>
                 </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+                </ul>
             </div>
             <div class="d-flex">
                 <button class="btn btn-outline-light" onclick="logout()">Logout</button>
@@ -70,6 +73,32 @@
         </div>
     </div>
 
+            <div class="tab-content bg-white border border-top-0 p-4" id="assignTabsContent">
+            <div class="tab-pane fade show active" id="grades" role="tabpanel">
+                <div class="row" id="grades-list">
+                </div>
+            </div>
+            <div class="tab-pane fade" id="grades" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Submission</th>
+                                <th>Review Text</th>
+                                <th>Grade (out of 10)</th>
+                                <th>Graded At</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="grades-table-body">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="assignmentModal" tabindex="-1">
         <div class="modal-dialog">
@@ -96,7 +125,6 @@
                         <div class="mb-3">
                             <label class="form-label">Deadline</label>
                             <input type="datetime-local" id="assign-deadline" class="form-control" required>
-                            <small class="text-danger d-none" id="deadline-error">Deadline must be at least 10 minutes from now</small>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Save Assignment</button>
                     </form>

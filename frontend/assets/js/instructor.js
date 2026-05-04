@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Identify which page we are on and attach event listeners
+
     const courseForm = document.getElementById('course-form');
     if (courseForm) {
         loadInstructorCourses();
@@ -23,14 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gradeForm.addEventListener('submit', handleGradeSubmit);
     }
 
-    // Load enrollments if we're on the enrollments page
+ 
     const enrollmentsTable = document.getElementById('enrollments-table-body');
     if (enrollmentsTable) {
         loadEnrollments();
     }
 });
 
-// --- COURSES ---
+
 async function loadInstructorCourses() {
     try {
         const response = await apiFetch('/courses/');
@@ -76,14 +76,13 @@ async function handleCourseSubmit(e) {
     const deptsInput = document.getElementById('course-depts').value;
     const levelsInput = document.getElementById('course-levels').value;
 
-    // Parse tags
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
-    // Parse IDs
+
     const allowed_depts = deptsInput ? deptsInput.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d)) : [];
     const allowed_levels = levelsInput ? levelsInput.split(',').map(l => parseInt(l.trim())).filter(l => !isNaN(l)) : [];
 
-    // Parse topics
+ 
     const topicElements = document.querySelectorAll('.topic-input-group');
     const topics = Array.from(topicElements).map(el => ({
         name: el.querySelector('.topic-name').value,
@@ -147,8 +146,6 @@ async function deleteCourse(id) {
         console.error(e);
     }
 }
-
-// --- ENROLLMENTS ---
 async function loadEnrollments() {
     try {
         const response = await apiFetch('/enrollments/');
@@ -177,7 +174,6 @@ async function loadEnrollments() {
     }
 }
 
-// --- ASSIGNMENTS ---
 function resetAssignmentForm() {
     document.getElementById('assign-id').value = '';
     document.getElementById('assignment-form').reset();
@@ -222,7 +218,6 @@ async function handleAssignmentSubmit(e) {
     const description = document.getElementById('assign-desc').value;
     const deadlineLocal = document.getElementById('assign-deadline').value;
     
-    // Validate deadline (convert local datetime to UTC)
     const deadline = new Date(deadlineLocal).toISOString();
     const now = new Date();
     const tenMinutesFromNow = new Date(now.getTime() + 10 * 60000);
@@ -270,7 +265,7 @@ async function deleteAssignment(id) {
     }
 }
 
-// --- SUBMISSIONS & GRADING ---
+
 async function loadSubmissions() {
     try {
         const response = await apiFetch('/submissions/');

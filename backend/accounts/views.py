@@ -1,8 +1,9 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer , ChangePasswordSerializer
+from .serializers import MyTokenObtainPairSerializer , ChangePasswordSerializer , UserProfileSerializer
 from rest_framework import status 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import UpdateAPIView 
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -16,5 +17,12 @@ class ChangePasswordView(UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request,format=None):
+        user = self.request.user 
+        serializer = UserProfileSerializer(user)
+        
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
