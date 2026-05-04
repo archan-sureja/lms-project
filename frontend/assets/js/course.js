@@ -21,19 +21,15 @@ async function loadCourseDetails(id) {
         const container = document.getElementById('course-details-container');
         
         if (response.ok) {
-            const course = await response.json();
-            
-            // Format allowed departments
+            const course = await response.json(); 
             const depts = course.allowed_depts && course.allowed_depts.length > 0 
                 ? course.allowed_depts.join(', ') 
                 : 'Any';
             
-            // Format allowed levels
             const levels = course.allowed_levels && course.allowed_levels.length > 0 
                 ? course.allowed_levels.join(', ') 
                 : 'Any';
 
-            // Basic details
             let html = `
                 <h2>${course.title}</h2>
                 <p class="text-muted">Instructor: ${course.instructor}</p>

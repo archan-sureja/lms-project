@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Identify which page we are on and attach event listeners
+    
     const courseForm = document.getElementById('course-form');
     if (courseForm) {
         loadInstructorCourses();
@@ -23,14 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gradeForm.addEventListener('submit', handleGradeSubmit);
     }
 
-    // Load enrollments if we're on the enrollments page
+
     const enrollmentsTable = document.getElementById('enrollments-table-body');
     if (enrollmentsTable) {
         loadEnrollments();
     }
 });
 
-// --- COURSES ---
+
 async function loadInstructorCourses() {
     try {
         const response = await apiFetch('/courses/');
@@ -145,7 +145,7 @@ async function deleteCourse(id) {
     }
 }
 
-// --- ENROLLMENTS ---
+
 async function loadEnrollments() {
     try {
         const response = await apiFetch('/enrollments/');
@@ -174,7 +174,6 @@ async function loadEnrollments() {
     }
 }
 
-// --- ASSIGNMENTS ---
 function resetAssignmentForm() {
     document.getElementById('assign-id').value = '';
     document.getElementById('assignment-form').reset();
@@ -218,8 +217,6 @@ async function handleAssignmentSubmit(e) {
     const title = document.getElementById('assign-title').value;
     const description = document.getElementById('assign-desc').value;
     const deadlineLocal = document.getElementById('assign-deadline').value;
-    
-    // Validate deadline (convert local datetime to UTC)
     const deadline = new Date(deadlineLocal).toISOString();
     const now = new Date();
     const tenMinutesFromNow = new Date(now.getTime() + 10 * 60000);
@@ -267,7 +264,7 @@ async function deleteAssignment(id) {
     }
 }
 
-// --- SUBMISSIONS & GRADING ---
+
 async function loadSubmissions() {
     try {
         const response = await apiFetch('/submissions/');
@@ -281,7 +278,7 @@ async function loadSubmissions() {
         }
 
         submissions.forEach(sub => {
-            const fileLink = sub.file ? `<a href="${API_BASE_URL}${sub.file}" target="_blank">View File</a>` : 'No file';
+            const fileLink = sub.file_url ? `<a href="#" onclick="handleFileDownload('${sub.file_url}')">View File</a>` : 'No file';
             tbody.innerHTML += `
                 <tr>
                     <td>${sub.id}</td>
@@ -298,7 +295,23 @@ async function loadSubmissions() {
         console.error(e);
     }
 }
-
+async function handleFileDownload(filePath) {
+    filePath = filePath.replace("http://localhost:8000", "");   
+    console.log(filePath)
+    const res = await apiFetch(filePath);
+    if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');      
+        a.href = url;
+        a.download = filePath.split('/').pop(); 
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    } else {
+        alert('Failed to download file.');
+    }
+}
 function openGradeModal(submissionId) {
     document.getElementById('grade-sub-id').value = submissionId;
     document.getElementById('grade-form').reset();
