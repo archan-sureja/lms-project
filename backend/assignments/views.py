@@ -15,7 +15,7 @@ from .serializers import (
     SubmissionSerializer,
     SubmissionUpdateSerializer,
     SubmissionGradeSerializer,
-    SubmissionGradeCreateSerializer
+    SubmissionGradeCreateSerializer,
 )
 
 

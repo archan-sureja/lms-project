@@ -1,11 +1,11 @@
-from rest_framework.viewsets import ModelViewSet 
+from rest_framework.viewsets import ModelViewSet , ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import generics 
 from django.db.models import Q
-from .serializers import CourseListSerializer , CourseDetailSerializer , CourseDetailLearnerSerializer , CourseCreateUpdateSerializer ,EnrollmentCreateSerializer , EnrollmentReadOnlySerializer
-from .models import Course , Enrollment 
+from .serializers import CourseListSerializer , CourseDetailSerializer , CourseDetailLearnerSerializer , CourseCreateUpdateSerializer ,EnrollmentCreateSerializer , EnrollmentReadOnlySerializer , TagSerializer
+from .models import Course , Enrollment , Tag
 from accounts.permissions import IsLearner , IsInstructor
 
 class CourseViewSet(ModelViewSet):
@@ -91,4 +91,6 @@ class EnrollmentListCreateView(generics.ListCreateAPIView):
      def perform_create(self, serializer):
           serializer.save(user=self.request.user)
      
-     
+class TagsViewSet(ReadOnlyModelViewSet):
+     queryset = Tag.objects.all()
+     serializer_class = TagSerializer 

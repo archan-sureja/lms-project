@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from .models import Course , Topic , Enrollment 
+from .models import Course , Topic , Enrollment , Tag
 class CourseListSerializer(serializers.ModelSerializer):
     tags = serializers.StringRelatedField(many=True)
     class Meta:
@@ -147,4 +147,8 @@ class EnrollmentReadOnlySerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = ("user","course","enrolled_at","department","level")
-        
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag 
+        fields = "__all__"

@@ -72,18 +72,15 @@ async function handleCourseSubmit(e) {
     const id = document.getElementById('course-id').value;
     const title = document.getElementById('course-title').value;
     const description = document.getElementById('course-description').value;
-    const tagsInput = document.getElementById('course-tags').value;
-    const deptsInput = document.getElementById('course-depts').value;
-    const levelsInput = document.getElementById('course-levels').value;
+   const allowed_depts = Array.from(document.getElementById('course-depts').selectedOptions)
+    .map(opt =>parseInt(opt.value));
 
-    // Parse tags
-    const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-    
-    // Parse IDs
-    const allowed_depts = deptsInput ? deptsInput.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d)) : [];
-    const allowed_levels = levelsInput ? levelsInput.split(',').map(l => parseInt(l.trim())).filter(l => !isNaN(l)) : [];
+    const allowed_levels = Array.from(document.getElementById('course-levels').selectedOptions)
+    .map(opt => parseInt(opt.value));
 
-    // Parse topics
+    const tags = Array.from(document.getElementById('course-tags').selectedOptions)
+    .map(opt => parseInt(opt.value)); 
+    console.log(tags,allowed_depts,allowed_levels)
     const topicElements = document.querySelectorAll('.topic-input-group');
     const topics = Array.from(topicElements).map(el => ({
         name: el.querySelector('.topic-name').value,
