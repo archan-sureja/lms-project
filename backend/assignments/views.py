@@ -2,7 +2,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action 
-from rest_framework.response import Response 
+from rest_framework.response import Response
+from django.http import FileResponse
 from rest_framework import generics 
 from rest_framework import status
 from accounts.permissions import IsInstructor, IsLearner
@@ -51,6 +52,14 @@ class AssignmentViewSet(ModelViewSet):
             self.serializer_class = AssignmentSerializer
         return super().get_serializer(*args, **kwargs)
 
+    def perform_update(self, serializer):
+        if serializer.instance.course.instructor != self.request.user:
+            raise PermissionDenied(
+                detail="only instructor can update assignments",
+                code=status.HTTP_403_FORBIDDEN,
+            )
+        return super().perform_update(serializer)
+    
     def perform_destroy(self, instance):
         if instance.course.instructor != self.request.user:
             raise PermissionDenied(
@@ -61,11 +70,11 @@ class AssignmentViewSet(ModelViewSet):
 
 
 class SubmissionViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated, IsLearner]
-    serializer_class = SubmissionCreateSerializer
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubmissionSerializer
 
     def get_queryset(self):
-        if self.request.user.role == "INSTRUCTOR" and self.action == "list":
+        if self.request.user.role == "INSTRUCTOR":
             submissions = Submission.objects.filter(
                 assignment__course__instructor=self.request.user
             )
@@ -77,15 +86,15 @@ class SubmissionViewSet(ModelViewSet):
         return submissions
 
     def get_serializer(self, *args, **kwargs):
-        if self.request.user.role == "LEARNER" and self.action == "list":
-            self.serializer_class = SubmissionSerializer
+        if self.action == "create":
+            self.serializer_class = SubmissionCreateSerializer
         elif self.action == "update":
             self.serializer_class = SubmissionUpdateSerializer
         return super().get_serializer(*args, **kwargs)
     def get_permissions(self):
-        if self.request.user.role == "INSTRUCTOR" and (self.action == "list" or self.action=="grade"):
+        if self.action=="grade":
             self.permission_classes = [IsAuthenticated,IsInstructor]
-        else:
+        elif self.action in ["create","update","destory","retrieve"]:
             self.permission_classes = [IsAuthenticated,IsLearner]
         return super().get_permissions()
     def perform_create(self, serializer):
@@ -116,6 +125,17 @@ class SubmissionViewSet(ModelViewSet):
             return Response(serializer.data)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
+    @action(detail=True, methods=["get"])
+    def download(self, request, pk=None):
+        print("inside download action")
+        submission = self.get_object()
+        print(submission)
+        user = request.user
+        if user==submission.submitted_by or user==submission.assignment.course.instructor:
+            return FileResponse(submission.file.open(), as_attachment=True)
+        raise PermissionDenied(detail="you are not allowed to access this file",code=status.HTTP_403_FORBIDDEN)
+
+    
 class SubmissionGradeListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = SubmissionGradeSerializer 
@@ -123,4 +143,5 @@ class SubmissionGradeListView(generics.ListAPIView):
         if self.request.user.role == "LEARNER":
             return SubmissionGrade.objects.filter(submission__submitted_by=self.request.user)
         return SubmissionGrade.objects.filter(submission__assignment__course__instructor=self.request.user)
-    
+
+
