@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import generics 
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from .serializers import CourseListSerializer , CourseDetailSerializer , CourseDetailLearnerSerializer , CourseCreateUpdateSerializer ,EnrollmentCreateSerializer , EnrollmentReadOnlySerializer , TagSerializer
 from .models import Course , Enrollment , Tag
@@ -11,6 +13,9 @@ from accounts.permissions import IsLearner , IsInstructor
 class CourseViewSet(ModelViewSet):
      permission_classes = [IsAuthenticated]
      serializer_class = CourseListSerializer 
+     filter_backends = [DjangoFilterBackend, SearchFilter]
+     filterset_fields = ['tags']
+     search_fields = ['title', 'description']
 
      def get_queryset(self):
           if self.request.user.role == "INSTRUCTOR":
@@ -29,9 +34,9 @@ class CourseViewSet(ModelViewSet):
           enrolled_courses = Course.objects.filter(id__in=self.request.user.enrollments.values_list('course_id',flat=True))
 
           if self.action=="list":
-               return allowed_courses.exclude(id__in=self.request.user.enrollments.values_list('course_id',flat=True))
+               return allowed_courses.exclude(id__in=self.request.user.enrollments.values_list('course_id',flat=True)).distinct()
           if self.action=="retrieve":
-               return allowed_courses | enrolled_courses
+               return (allowed_courses | enrolled_courses).distinct()
           
      def get_permissions(self):
           if self.action == "enrolled":

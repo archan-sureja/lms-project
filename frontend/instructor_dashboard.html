@@ -31,12 +31,13 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>My Courses</h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#courseModal">Create New
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#courseModal"
+                onclick="resetCourseForm()">Create New
                 Course</button>
         </div>
 
         <div class="row" id="instructor-courses-list">
-           
+
         </div>
     </div>
 
@@ -61,23 +62,24 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tags</label>
-                            <select id="course-tags" class="form-select" multiple>  
+                            <select id="course-tags" class="form-select" multiple>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Allowed Departments</label>
-                             <select id="course-depts" class="form-select" multiple>  
+                            <select id="course-depts" class="form-select" multiple>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Allowed Levels</label>
-                             <select id="course-levels" class="form-select" multiple>  
+                            <select id="course-levels" class="form-select" multiple>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Topics</label>
                             <div id="topics-container"></div>
-                            <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addTopicField()">Add Topic</button>
+                            <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addTopicField()">Add
+                                Topic</button>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Save Course</button>
                     </form>
@@ -89,9 +91,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/instructor.js"></script>
-    <script >
-        async function loadDropdowns(){
-            const [deptsRes,levelRes,tagsRes] = await Promise.all(
+    <script>
+        async function loadDropdowns() {
+            const [deptsRes, levelRes, tagsRes] = await Promise.all(
                 [
                     apiFetch("/departments/"),
                     apiFetch("/levels/"),
@@ -102,18 +104,18 @@
             const levels = await levelRes.json()
             const tags = await tagsRes.json()
 
-            createSelection('course-depts',depts)
-            createSelection('course-levels',levels)
-            createSelection('course-tags',tags)
+            createSelection('course-depts', depts)
+            createSelection('course-levels', levels)
+            createSelection('course-tags', tags)
         }
-        function createSelection(elementId,items){
+        function createSelection(elementId, items) {
             const ele = document.getElementById(elementId)
             ele.innerHTML = ""
             items.forEach(element => {
-                    const option = document.createElement('option')
-                    option.value = element.id 
-                    option.textContent = element.name 
-                    ele.appendChild(option)
+                const option = document.createElement('option')
+                option.value = element.id
+                option.textContent = element.name
+                ele.appendChild(option)
             });
         }
         loadDropdowns()

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    loadTags();
     loadAvailableCourses();
     loadEnrolledCourses();
     loadAssignments();
@@ -11,9 +12,45 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('submission-form').addEventListener('submit', handleSubmission);
 });
 
+async function loadTags() {
+    try {
+        const response = await apiFetch('/tags/');
+        if (response.ok) {
+            const tags = await response.json();
+            const tagSelect = document.getElementById('course-tag-filter');
+            if (tagSelect) {
+                tags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.id;
+                    option.textContent = tag.name;
+                    tagSelect.appendChild(option);
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Error loading tags:', e);
+    }
+}
+
 async function loadAvailableCourses() {
     try {
-        const response = await apiFetch('/courses/');
+        const searchInput = document.getElementById('course-search-input');
+        const tagFilter = document.getElementById('course-tag-filter');
+        let url = '/courses/';
+        const params = new URLSearchParams();
+        
+        if (searchInput && searchInput.value.trim() !== '') {
+            params.append('search', searchInput.value.trim());
+        }
+        if (tagFilter && tagFilter.value) {
+            params.append('tags', tagFilter.value);
+        }
+        
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+
+        const response = await apiFetch(url);
         const courses = await response.json();
         const container = document.getElementById('available-courses-list');
         container.innerHTML = '';

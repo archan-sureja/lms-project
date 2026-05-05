@@ -7,3 +7,4 @@ submissions/
 .pytest_cache 
 .coverage
 htmlcov/
+db.sqlite3 

@@ -81,24 +81,18 @@ class CourseCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         topics_data = validated_data.pop('topics',None)
         tags_data = validated_data.pop('tags',None)
-        allowed_depts = validated_data.pop('allowed_depts',None)
-        allowed_levels = validated_data.pop('allowed_levels',None)
+        validated_data.pop('allowed_depts',None)
+        validated_data.pop('allowed_levels',None)
         if validated_data:
             instance = super().update(instance,validated_data)
         
-        if topics_data : 
-            lst = []
+        if topics_data is not None: 
             instance.topics.all().delete()
             for topic_data in topics_data:
                 topic_data['course_id']=instance.id
-                lst.append(Topic(**topic_data))
-            Topic.objects.bulk_create(lst)
-        if tags_data : 
+                Topic(**topic_data).save()
+        if tags_data is not None: 
             instance.tags.set(tags_data)
-        if allowed_depts:
-            instance.allowed_depts.set(allowed_depts)
-        if allowed_levels:
-            instance.allowed_levels.set(allowed_levels)
         return instance
 
 class EnrollmentCreateSerializer(serializers.ModelSerializer):

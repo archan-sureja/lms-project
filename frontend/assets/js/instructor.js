@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    
+
 
     const courseForm = document.getElementById('course-form');
     if (courseForm) {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
- 
+
     const enrollmentsTable = document.getElementById('enrollments-table-body');
     if (enrollmentsTable) {
         loadEnrollments();
@@ -39,7 +39,7 @@ async function loadInstructorCourses() {
         const courses = await response.json();
         const container = document.getElementById('instructor-courses-list');
         container.innerHTML = '';
-        
+
         if (courses.length === 0) {
             container.innerHTML = '<p class="text-muted">You have not created any courses.</p>';
             return;
@@ -53,7 +53,7 @@ async function loadInstructorCourses() {
                             <h5 class="card-title">${course.title} (ID: ${course.id})</h5>
                             <p class="card-text">${course.description || 'No description'}</p>
                             <button class="btn btn-sm btn-danger float-end ms-2" onclick="deleteCourse(${course.id})">Delete</button>
-                            <button class="btn btn-sm btn-info float-end ms-2" onclick="handle
+                            <button class="btn btn-sm btn-warning float-end ms-2" onclick="openEditCourseModal(${course.id})">Edit</button>
                             <a href="course_detail.html?id=${course.id}" class="btn btn-sm btn-info float-end ms-2">Details</a>
                         </div>
                     </div>
@@ -68,6 +68,14 @@ async function loadInstructorCourses() {
 function resetCourseForm() {
     document.getElementById('course-id').value = '';
     document.getElementById('course-form').reset();
+    const topicsContainer = document.getElementById('topics-container');
+    if (topicsContainer) topicsContainer.innerHTML = '';
+    const label = document.getElementById('courseModalLabel');
+    if (label) label.textContent = 'Create Course';
+    const deptsSelect = document.getElementById('course-depts');
+    if (deptsSelect) deptsSelect.disabled = false;
+    const levelsSelect = document.getElementById('course-levels');
+    if (levelsSelect) levelsSelect.disabled = false;
 }
 
 async function handleCourseSubmit(e) {
@@ -75,15 +83,15 @@ async function handleCourseSubmit(e) {
     const id = document.getElementById('course-id').value;
     const title = document.getElementById('course-title').value;
     const description = document.getElementById('course-description').value;
-   const allowed_depts = Array.from(document.getElementById('course-depts').selectedOptions)
-    .map(opt =>parseInt(opt.value));
+    const allowed_depts = Array.from(document.getElementById('course-depts').selectedOptions)
+        .map(opt => parseInt(opt.value));
 
     const allowed_levels = Array.from(document.getElementById('course-levels').selectedOptions)
-    .map(opt => parseInt(opt.value));
+        .map(opt => parseInt(opt.value));
 
     const tags = Array.from(document.getElementById('course-tags').selectedOptions)
-    .map(opt => parseInt(opt.value)); 
-    console.log(tags,allowed_depts,allowed_levels)
+        .map(opt => parseInt(opt.value));
+    console.log(tags, allowed_depts, allowed_levels)
     const topicElements = document.querySelectorAll('.topic-input-group');
     const topics = Array.from(topicElements).map(el => ({
         name: el.querySelector('.topic-name').value,
@@ -148,6 +156,66 @@ async function deleteCourse(id) {
     }
 }
 
+async function openEditCourseModal(id) {
+    try {
+        const response = await apiFetch(`/courses/${id}/`);
+        if (!response.ok) {
+            alert('Failed to fetch course details.');
+            return;
+        }
+        const course = await response.json();
+
+        document.getElementById('course-id').value = course.id;
+        document.getElementById('course-title').value = course.title;
+        document.getElementById('course-description').value = course.description;
+        document.getElementById('courseModalLabel').textContent = 'Edit Course';
+
+        const tagsSelect = document.getElementById('course-tags');
+        Array.from(tagsSelect.options).forEach(opt => {
+            opt.selected = course.tags.includes(opt.text);
+        });
+
+        const deptsSelect = document.getElementById('course-depts');
+        Array.from(deptsSelect.options).forEach(opt => {
+            opt.selected = course.allowed_depts.includes(opt.text);
+        });
+        deptsSelect.disabled = true;
+
+        const levelsSelect = document.getElementById('course-levels');
+        Array.from(levelsSelect.options).forEach(opt => {
+            opt.selected = course.allowed_levels.includes(opt.text);
+        });
+        levelsSelect.disabled = true;
+
+        const topicsContainer = document.getElementById('topics-container');
+        topicsContainer.innerHTML = '';
+        course.topics.forEach(topic => {
+            const html = `
+                <div class="topic-input-group card p-2 mb-2">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <input type="text" class="form-control topic-name form-control-sm" placeholder="Topic name" value="${topic.name}" required>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <input type="url" class="form-control topic-link form-control-sm" placeholder="Resource link (optional)" value="${topic.resource_link || ''}">
+                        </div>
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.parentElement.parentElement.remove()">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            topicsContainer.innerHTML += html;
+        });
+
+        const modalElement = document.getElementById('courseModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 
 async function loadEnrollments() {
     try {
@@ -188,7 +256,7 @@ async function loadInstructorAssignments() {
         const assignments = await response.json();
         const container = document.getElementById('assignments-list');
         container.innerHTML = '';
-        
+
         if (assignments.length === 0) {
             container.innerHTML = '<p class="text-muted">No assignments created.</p>';
             return;
@@ -204,6 +272,7 @@ async function loadInstructorAssignments() {
                             <p class="card-text">${assign.description || ''}</p>
                             <p class="small text-muted">Deadline: ${new Date(assign.deadline).toLocaleString()}</p>
                             <button class="btn btn-sm btn-danger float-end" onclick="deleteAssignment(${assign.id})">Delete</button>
+                            <button class="btn btn-sm btn-warning float-end me-2" onclick="openEditAssignmentModal(${assign.id})">Edit</button>
                         </div>
                     </div>
                 </div>
@@ -221,17 +290,8 @@ async function handleAssignmentSubmit(e) {
     const title = document.getElementById('assign-title').value;
     const description = document.getElementById('assign-desc').value;
     const deadlineLocal = document.getElementById('assign-deadline').value;
-    
-    const deadline = new Date(deadlineLocal).toISOString();
-    const now = new Date();
-    const tenMinutesFromNow = new Date(now.getTime() + 10 * 60000);
-    
-    if (new Date(deadline) <= tenMinutesFromNow) {
-        document.getElementById('deadline-error').classList.remove('d-none');
-        return;
-    }
-    document.getElementById('deadline-error').classList.add('d-none');
 
+    const deadline = new Date(deadlineLocal).toISOString();
     const method = id ? 'PUT' : 'POST';
     const endpoint = id ? `/assignments/${id}/` : '/assignments/';
 
@@ -251,6 +311,33 @@ async function handleAssignmentSubmit(e) {
             const err = await response.json();
             alert('Error: ' + JSON.stringify(err));
         }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function openEditAssignmentModal(id) {
+    try {
+        const response = await apiFetch(`/assignments/${id}/`);
+        if (!response.ok) {
+            alert('Failed to fetch assignment details.');
+            return;
+        }
+        const assign = await response.json();
+
+        document.getElementById('assign-id').value = assign.id;
+        document.getElementById('assign-course-id').value = assign.course;
+        document.getElementById('assign-title').value = assign.title;
+        document.getElementById('assign-desc').value = assign.description;
+
+        // datetime-local input needs YYYY-MM-DDTHH:MM formatted local time
+        const deadlineDate = new Date(assign.deadline);
+        const localDeadline = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('assign-deadline').value = localDeadline;
+
+        const modalElement = document.getElementById('assignmentModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
     } catch (e) {
         console.error(e);
     }
@@ -286,10 +373,10 @@ async function loadSubmissions() {
             const fileLink = sub.file_url ? `<a href="#" onclick="handleFileDownload('${sub.file_url}')" class="text-decoration-none">Download</a>` : 'No file';
             const submittedAt = new Date(sub.submitted_at).toLocaleDateString() + ' ' + new Date(sub.submitted_at).toLocaleTimeString();
             const statusBadge = sub.is_late ? '<span class="badge bg-danger">Late</span>' : '<span class="badge bg-success">On Time</span>';
-            
+
             let gradeColumn = '';
             let actionColumn = '';
-            
+
             if (sub.grade && sub.grade.grade !== null) {
                 gradeColumn = `<td>${sub.grade.grade}/10.0</td>`;
                 actionColumn = `<td>
@@ -301,7 +388,7 @@ async function loadSubmissions() {
                     <button class="btn btn-sm btn-success" onclick="openGradeModal(${sub.id}, '', '')">Grade</button>
                 </td>`;
             }
-            
+
             tbody.innerHTML += `
                 <tr>
                     <td>${sub.id}</td>
@@ -310,7 +397,7 @@ async function loadSubmissions() {
                     <td>${submittedAt}</td>
                     <td>${statusBadge}</td>
                     ${gradeColumn}
-                    <td>${sub.grade.review_text || '-'}</td>
+                    <td>${(sub.grade) && sub.grade.review_text || '-'}</td>
                     <td>${fileLink}</td>
                     ${actionColumn}
                 </tr>
@@ -321,15 +408,15 @@ async function loadSubmissions() {
     }
 }
 async function handleFileDownload(filePath) {
-    filePath = filePath.replace("http://localhost:8000", "");   
+    filePath = filePath.replace("http://localhost:8000", "");
     console.log(filePath)
     const res = await apiFetch(filePath);
     if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');      
+        const a = document.createElement('a');
         a.href = url;
-        a.download = filePath.split('/').pop(); 
+        a.download = filePath.split('/').pop();
         document.body.appendChild(a);
         a.click();
         a.remove();

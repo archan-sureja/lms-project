@@ -33,18 +33,33 @@
                 <button class="nav-link" id="assignments-tab" data-bs-toggle="tab" data-bs-target="#assignments"
                     type="button" role="tab">Assignments</button>
             </li>
+
         </ul>
         <div class="tab-content bg-white border border-top-0 p-4" id="learnerTabsContent">
             <div class="tab-pane fade show active" id="available" role="tabpanel">
                 <h4>Available Courses</h4>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" id="course-search-input" class="form-control"
+                            placeholder="Search by title or description...">
+                    </div>
+                    <div class="col-md-4">
+                        <select id="course-tag-filter" class="form-select">
+                            <option value="">All Tags</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="loadAvailableCourses()">Search</button>
+                    </div>
+                </div>
                 <div class="row" id="available-courses-list">
-      
+
                 </div>
             </div>
             <div class="tab-pane fade" id="enrolled" role="tabpanel">
                 <h4>Enrolled Courses</h4>
                 <div class="row" id="enrolled-courses-list">
-             
+
                 </div>
             </div>
             <div class="tab-pane fade" id="assignments" role="tabpanel">
@@ -52,6 +67,7 @@
                 <div id="assignments-list">
                 </div>
             </div>
+
         </div>
     </div>
 

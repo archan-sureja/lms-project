@@ -35,12 +35,11 @@ class ProfileView(APIView):
         serializer = UserProfileSerializer(user)
         
         return Response(serializer.data,status=status.HTTP_200_OK)
-
 class DepartmentViewSet(ReadOnlyModelViewSet):
-    queryset = Department.objects.all()
+    queryset = Department.objects.exclude(pk=1)
     serializer_class = DepartmentSerializer  
 
 class LevelViewSet(ReadOnlyModelViewSet):
-    queryset = Level.objects.all()
+    queryset = Level.objects.exclude(pk=1)
     serializer_class = LevelSerializer
 
