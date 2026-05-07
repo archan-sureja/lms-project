@@ -2,3 +2,9 @@ venv/
 .venv/
 .env 
 __pycache__/ 
+todo.txt 
+submissions/
+.pytest_cache 
+.coverage
+htmlcov/
+db.sqlite3 
